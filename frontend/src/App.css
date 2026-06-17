@@ -1,0 +1,85 @@
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+}
+
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: #111827;
+  border-bottom: 1px solid #1f2937;
+}
+
+.logo {
+  color: #38bdf8;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+select, button {
+  padding: 8px 12px;
+  margin-left: 10px;
+}
+
+button {
+  background: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+
+button:hover {
+  background: #16a34a;
+}
+
+.workspace {
+  display: flex;
+  flex: 1;
+}
+
+.editorPane {
+  flex: 2;
+}
+
+.outputPane {
+  flex: 1;
+  background: #0b1220;
+  border-left: 1px solid #1f2937;
+  display: flex;
+  flex-direction: column;
+}
+
+.inputBox {
+  padding: 10px;
+  border-bottom: 1px solid #1f2937;
+}
+
+.inputBox textarea {
+  width: 100%;
+  height: 100px;
+  background: #111827;
+  color: white;
+  border: none;
+  padding: 10px;
+}
+
+.outputHeader {
+  padding: 10px;
+  color: #38bdf8;
+  font-weight: bold;
+}
+
+.outputBox {
+  padding: 10px;
+  white-space: pre-wrap;
+  overflow-y: auto;
+}
