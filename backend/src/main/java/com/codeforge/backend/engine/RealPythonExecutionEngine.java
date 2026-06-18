@@ -9,23 +9,25 @@ public class RealPythonExecutionEngine {
 
         try {
 
-            // 1. Create temp folder
             String dir = System.getProperty("java.io.tmpdir") + "/codeforge";
             Files.createDirectories(Paths.get(dir));
 
-            // 2. Write Python file
             String filePath = dir + "/main.py";
             Files.write(Paths.get(filePath), code.getBytes());
 
-            // 3. Run python file
             Process process = new ProcessBuilder("python", filePath)
                     .directory(new File(dir))
                     .start();
 
+            boolean finished = process.waitFor(3, java.util.concurrent.TimeUnit.SECONDS);
+
+            if (!finished) {
+                process.destroy();
+                return "RUNTIME_ERROR: Execution Timeout";
+            }
+
             String output = read(process.getInputStream());
             String error = read(process.getErrorStream());
-
-            process.waitFor();
 
             if (!error.isEmpty()) {
                 return "RUNTIME_ERROR:\n" + error;

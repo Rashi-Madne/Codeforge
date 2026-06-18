@@ -11,61 +11,64 @@ public class RealJavaExecutionEngine {
 
         try {
 
-            // 1. Create temp directory
             String dirPath = System.getProperty("java.io.tmpdir") + "/codeforge";
             Files.createDirectories(Paths.get(dirPath));
 
-            // 2. Write Java file
             String filePath = dirPath + "/Main.java";
             Files.write(Paths.get(filePath), userCode.getBytes());
 
-            // 3. Compile Java file
-            Process compileProcess = new ProcessBuilder(
-                    "javac",
-                    filePath
-            ).directory(new File(dirPath)).start();
+            // Compile
+            Process compileProcess = new ProcessBuilder("javac", filePath)
+                    .directory(new File(dirPath))
+                    .start();
 
-            String compileError = readStream(compileProcess.getErrorStream());
-            compileProcess.waitFor();
+            String compileError = read(compileProcess.getErrorStream());
+
+            boolean compileFinished = compileProcess.waitFor(5, java.util.concurrent.TimeUnit.SECONDS);
+
+            if (!compileFinished) {
+                compileProcess.destroy();
+                return "COMPILATION_ERROR: Timeout";
+            }
 
             if (!compileError.isEmpty()) {
                 return "COMPILATION_ERROR:\n" + compileError;
             }
 
-            // 4. Run Java program
-            Process runProcess = new ProcessBuilder(
-                    "java",
-                    "-cp",
-                    dirPath,
-                    "Main"
-            ).directory(new File(dirPath)).start();
+            // Run program
+            Process runProcess = new ProcessBuilder("java", "-cp", dirPath, "Main")
+                    .directory(new File(dirPath))
+                    .start();
 
-            output = readStream(runProcess.getInputStream());
-            String runtimeError = readStream(runProcess.getErrorStream());
+            boolean finished = runProcess.waitFor(3, java.util.concurrent.TimeUnit.SECONDS);
 
-            runProcess.waitFor();
-
-            if (!runtimeError.isEmpty()) {
-                return "RUNTIME_ERROR:\n" + runtimeError;
+            if (!finished) {
+                runProcess.destroy();
+                return "RUNTIME_ERROR: Execution Timeout (Infinite loop detected)";
             }
 
-            return output.trim();
+            String result = read(runProcess.getInputStream());
+            String error = read(runProcess.getErrorStream());
+
+            if (!error.isEmpty()) {
+                return "RUNTIME_ERROR:\n" + error;
+            }
+
+            return result.trim();
 
         } catch (Exception e) {
             return "ERROR:\n" + e.getMessage();
         }
     }
 
-    private String readStream(InputStream inputStream) throws IOException {
+    private String read(InputStream inputStream) throws IOException {
 
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(inputStream)
-        );
+        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
         StringBuilder sb = new StringBuilder();
         String line;
 
-        while ((line = reader.readLine()) != null) {
+        while ((line = br.readLine()) != null) {
             sb.append(line).append("\n");
         }
 
