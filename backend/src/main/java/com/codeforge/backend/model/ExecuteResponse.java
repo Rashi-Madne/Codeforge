@@ -4,13 +4,13 @@ import java.util.List;
 
 public class ExecuteResponse {
 
-    private String output;
-    private String error;
-    private String status;
+    private String output = "";
+    private String error = "";
+    private String status = "";
 
-    private List<String> testResults;
-    private int passed;
-    private int total;
+    private List<TestResult> testResults;
+    private int passed = 0;
+    private int total = 0;
 
     public String getOutput() { return output; }
     public void setOutput(String output) { this.output = output; }
@@ -21,8 +21,8 @@ public class ExecuteResponse {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public List<String> getTestResults() { return testResults; }
-    public void setTestResults(List<String> testResults) { this.testResults = testResults; }
+    public List<TestResult> getTestResults() { return testResults; }
+    public void setTestResults(List<TestResult> testResults) { this.testResults = testResults; }
 
     public int getPassed() { return passed; }
     public void setPassed(int passed) { this.passed = passed; }

@@ -1,0 +1,54 @@
+package com.codeforge.backend.engine;
+
+import java.io.*;
+import java.nio.file.*;
+
+public class RealPythonExecutionEngine {
+
+    public String execute(String code) {
+
+        try {
+
+            // 1. Create temp folder
+            String dir = System.getProperty("java.io.tmpdir") + "/codeforge";
+            Files.createDirectories(Paths.get(dir));
+
+            // 2. Write Python file
+            String filePath = dir + "/main.py";
+            Files.write(Paths.get(filePath), code.getBytes());
+
+            // 3. Run python file
+            Process process = new ProcessBuilder("python", filePath)
+                    .directory(new File(dir))
+                    .start();
+
+            String output = read(process.getInputStream());
+            String error = read(process.getErrorStream());
+
+            process.waitFor();
+
+            if (!error.isEmpty()) {
+                return "RUNTIME_ERROR:\n" + error;
+            }
+
+            return output.trim();
+
+        } catch (Exception e) {
+            return "ERROR:\n" + e.getMessage();
+        }
+    }
+
+    private String read(InputStream input) throws IOException {
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(input));
+
+        StringBuilder sb = new StringBuilder();
+        String line;
+
+        while ((line = br.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+
+        return sb.toString();
+    }
+}

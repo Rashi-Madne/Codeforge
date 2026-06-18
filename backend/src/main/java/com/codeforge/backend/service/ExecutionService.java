@@ -1,10 +1,8 @@
 package com.codeforge.backend.service;
 
+import com.codeforge.backend.engine.RealJavaExecutionEngine;
+import com.codeforge.backend.engine.RealPythonExecutionEngine;
 import com.codeforge.backend.model.*;
-import com.codeforge.backend.engine.JavaExecutionEngine;
-import com.codeforge.backend.engine.PythonExecutionEngine;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,76 +11,128 @@ import java.util.List;
 @Service
 public class ExecutionService {
 
-    @Autowired
-    private JavaExecutionEngine javaEngine;
-
-    @Autowired
-    private PythonExecutionEngine pythonEngine;
+    private final RealJavaExecutionEngine javaEngine = new RealJavaExecutionEngine();
+    private final RealPythonExecutionEngine pythonEngine = new RealPythonExecutionEngine();
 
     public ExecuteResponse execute(CodeRequest request) {
 
-        ExecuteResponse res = new ExecuteResponse();
-        List<String> results = new ArrayList<>();
-
-        int passed = 0;
+        ExecuteResponse response = new ExecuteResponse();
 
         try {
 
-            if (request.getTestCases() == null || request.getTestCases().isEmpty()) {
-                return runSingle(request);
-            }
+            String language = request.getLanguage();
+            String code = request.getCode();
 
-            int total = request.getTestCases().size();
+            String result = "";
 
-            for (int i = 0; i < total; i++) {
+            // =========================
+            // JAVA EXECUTION (REAL)
+            // =========================
+            if ("java".equalsIgnoreCase(language)) {
 
-                TestCase tc = request.getTestCases().get(i);
+                result = javaEngine.execute(code);
 
-                CodeRequest temp = new CodeRequest();
-                temp.setCode(request.getCode());
-                temp.setLanguage(request.getLanguage());
-                temp.setInput(tc.getInput());
+                if (result.startsWith("COMPILATION_ERROR")) {
 
-                ExecuteResponse r = runSingle(temp);
+                    response.setStatus("COMPILATION_ERROR");
+                    response.setOutput("");
+                    response.setError(result);
 
-                String out = r.getOutput() == null ? "" : r.getOutput().trim();
-                String exp = tc.getExpectedOutput() == null ? "" : tc.getExpectedOutput().trim();
+                } else if (result.startsWith("RUNTIME_ERROR")) {
 
-                if (out.equals(exp)) {
-                    results.add("TestCase " + (i + 1) + " → PASS");
-                    passed++;
+                    response.setStatus("RUNTIME_ERROR");
+                    response.setOutput("");
+                    response.setError(result);
+
                 } else {
-                    results.add("TestCase " + (i + 1) + " → FAIL");
+
+                    response.setStatus("SUCCESS");
+                    response.setOutput(result);
+                    response.setError("");
                 }
             }
 
-            res.setTestResults(results);
-            res.setPassed(passed);
-            res.setTotal(request.getTestCases().size());
-            res.setStatus(passed == request.getTestCases().size() ? "ACCEPTED" : "FAILED");
+            // =========================
+            // PYTHON EXECUTION (REAL)
+            // =========================
+            else if ("python".equalsIgnoreCase(language)) {
 
-            return res;
+                result = pythonEngine.execute(code);
+
+                if (result.startsWith("RUNTIME_ERROR")) {
+
+                    response.setStatus("RUNTIME_ERROR");
+                    response.setOutput("");
+                    response.setError(result);
+
+                } else {
+
+                    response.setStatus("SUCCESS");
+                    response.setOutput(result);
+                    response.setError("");
+                }
+            }
+
+            // =========================
+            // INVALID LANGUAGE
+            // =========================
+            else {
+
+                response.setStatus("ERROR");
+                response.setOutput("");
+                response.setError("Unsupported language: " + language);
+            }
+
+            // =========================
+            // TEST CASE EXECUTION
+            // =========================
+            List<TestResult> results = new ArrayList<>();
+            int passed = 0;
+
+            if (request.getTestCases() != null && !request.getTestCases().isEmpty()) {
+
+                for (TestCase tc : request.getTestCases()) {
+
+                    TestResult tr = new TestResult();
+
+                    tr.setInput(tc.getInput());
+                    tr.setExpected(tc.getExpected());
+
+                    String actual = response.getOutput();
+
+                    tr.setActual(actual);
+
+                    boolean ok = actual != null &&
+                            actual.trim().equals(tc.getExpected().trim());
+
+                    tr.setPassed(ok);
+
+                    if (ok) passed++;
+
+                    results.add(tr);
+                }
+
+                response.setTestResults(results);
+                response.setPassed(passed);
+                response.setTotal(request.getTestCases().size());
+
+            } else {
+
+                response.setTestResults(new ArrayList<>());
+                response.setPassed(0);
+                response.setTotal(0);
+            }
 
         } catch (Exception e) {
-            res.setStatus("ERROR");
-            res.setError(e.getMessage());
-            return res;
-        }
-    }
 
-    private ExecuteResponse runSingle(CodeRequest request) throws Exception {
-
-        if ("java".equalsIgnoreCase(request.getLanguage())) {
-            return javaEngine.execute(request.getCode(), request.getInput());
+            response.setStatus("ERROR");
+            response.setOutput("");
+            response.setError(e.getMessage());
+            response.setTestResults(new ArrayList<>());
+            response.setPassed(0);
+            response.setTotal(0);
         }
 
-        if ("python".equalsIgnoreCase(request.getLanguage())) {
-            return pythonEngine.execute(request.getCode(), request.getInput());
-        }
-
-        ExecuteResponse r = new ExecuteResponse();
-        r.setStatus("ERROR");
-        r.setError("Unsupported language");
-        return r;
+        return response;
     }
 }

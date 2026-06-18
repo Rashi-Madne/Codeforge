@@ -2,205 +2,210 @@ import { useState } from "react";
 import Editor from "@monaco-editor/react";
 
 export default function App() {
-  const [code, setCode] = useState(`public class Main {
-    public static void main(String[] args) {
-        System.out.println(10);
-    }
-}`);
 
-  const [language, setLanguage] = useState("java");
-  const [output, setOutput] = useState("");
+  const [code, setCode] = useState(`print(10)`);
+  const [language, setLanguage] = useState("python");
   const [loading, setLoading] = useState(false);
-  const [input, setInput] = useState("");
+  const [result, setResult] = useState(null);
 
   const runCode = async () => {
     setLoading(true);
-    setOutput("Running...");
 
     try {
-      const response = await fetch(
-        "http://localhost:8082/api/execute",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            code: code,
-            language: language,
-            input: input,
-            testCases: [],
-          }),
-        }
-      );
+      const res = await fetch("http://localhost:8082/api/execute", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          code,
+          language,
+          input: "",
+          testCases: [
+            {
+              input: "",
+              expected: "10"
+            }
+          ]
+        })
+      });
 
-      const data = await response.json();
+      const data = await res.json();
+      setResult(data);
 
-      setOutput(
-        `STATUS: ${data.status}
-
-OUTPUT:
-${data.output || ""}
-
-ERROR:
-${data.error || "None"}`
-      );
     } catch (err) {
-      setOutput(`Backend not reachable
-
-${err.message}`);
+      setResult({
+        status: "ERROR",
+        error: err.message
+      });
     }
 
     setLoading(false);
   };
 
-  const handleLanguageChange = (e) => {
-    const lang = e.target.value;
-    setLanguage(lang);
-
-    if (lang === "java") {
-      setCode(`public class Main {
-    public static void main(String[] args) {
-        
-    }
-}`);
-    } else {
-      setCode(`print("Hello World")`);
-    }
-  };
-
   return (
-    <div
-      style={{
-        height: "100vh",
-        background: "#0d1117",
-        color: "white",
-        display: "flex",
-        flexDirection: "column",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      {/* HEADER */}
-      <div
-        style={{
-          height: "60px",
-          background: "#161b22",
-          borderBottom: "1px solid #30363d",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "0 20px",
-        }}
-      >
-        <h2 style={{ margin: 0 }}>🚀 CodeForge</h2>
+    <div style={styles.container}>
 
-        <div style={{ display: "flex", gap: "10px" }}>
+      {/* LEFT SIDE */}
+      <div style={styles.left}>
+
+        {/* PROBLEM BOX */}
+        <div style={styles.problemBox}>
+          <h2>Problem</h2>
+          <p>
+            Print the number 10 using your program.
+          </p>
+        </div>
+
+        {/* LANGUAGE + BUTTON */}
+        <div style={styles.topBar}>
+
           <select
             value={language}
-            onChange={handleLanguageChange}
-            style={{
-              padding: "8px",
-              background: "#0d1117",
-              color: "white",
-              border: "1px solid #30363d",
-            }}
+            onChange={(e) => setLanguage(e.target.value)}
+            style={styles.select}
           >
-            <option value="java">Java</option>
             <option value="python">Python</option>
+            <option value="java">Java</option>
           </select>
 
-          <button
-            onClick={runCode}
-            disabled={loading}
-            style={{
-              padding: "8px 16px",
-              background: "#238636",
-              color: "white",
-              border: "none",
-              cursor: "pointer",
-              borderRadius: "6px",
-            }}
-          >
-            {loading ? "Running..." : "Run ▶"}
+          <button onClick={runCode} style={styles.button}>
+            {loading ? "Running..." : "Run Code"}
           </button>
-        </div>
-      </div>
 
-      {/* MAIN AREA */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-        }}
-      >
+        </div>
+
         {/* EDITOR */}
-        <div
-          style={{
-            flex: 1,
-            borderRight: "1px solid #30363d",
-          }}
-        >
-          <Editor
-            height="100%"
-            theme="vs-dark"
-            language={language}
-            value={code}
-            onChange={(value) => setCode(value || "")}
-          />
-        </div>
+        <Editor
+          height="70vh"
+          theme="vs-dark"
+          language={language}
+          value={code}
+          onChange={(v) => setCode(v)}
+        />
 
-        {/* OUTPUT */}
-        <div
-          style={{
-            width: "35%",
-            background: "#161b22",
-            padding: "20px",
-            overflowY: "auto",
-          }}
-        >
-          <h3>Output</h3>
-
-          <pre
-            style={{
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
-              background: "#0d1117",
-              padding: "15px",
-              borderRadius: "8px",
-              minHeight: "300px",
-            }}
-          >
-            {output || "Run code to see output"}
-          </pre>
-        </div>
       </div>
 
-      {/* TEST CASES / INPUT */}
-      <div
-        style={{
-          height: "180px",
-          background: "#161b22",
-          borderTop: "1px solid #30363d",
-          padding: "15px",
-        }}
-      >
-        <h3 style={{ marginTop: 0 }}>Input</h3>
+      {/* RIGHT SIDE */}
+      <div style={styles.right}>
 
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Enter program input here..."
-          style={{
-            width: "100%",
-            height: "90px",
-            background: "#0d1117",
-            color: "white",
-            border: "1px solid #30363d",
-            padding: "10px",
-            resize: "none",
-          }}
-        />
+        <h2>Test Results</h2>
+
+        {!result && <p>Run code to see results</p>}
+
+        {result && (
+          <>
+            <div style={styles.statusBox}>
+              STATUS: {result.status}
+            </div>
+
+            <div style={styles.outputBox}>
+              OUTPUT: {result.output}
+            </div>
+
+            <div style={styles.countBox}>
+              PASSED: {result.passed || 0}/{result.total || 0}
+            </div>
+
+            {/* TEST CASES */}
+            <h3>Test Cases</h3>
+
+            {result.testResults?.map((tc, index) => (
+              <div
+                key={index}
+                style={{
+                  ...styles.testCase,
+                  backgroundColor: tc.passed ? "#1f6f3b" : "#7a1f1f"
+                }}
+              >
+                <p><b>Input:</b> {tc.input}</p>
+                <p><b>Expected:</b> {tc.expected}</p>
+                <p><b>Actual:</b> {tc.actual}</p>
+                <p>
+                  <b>Status:</b>{" "}
+                  {tc.passed ? "✔ PASS" : "❌ FAIL"}
+                </p>
+              </div>
+            ))}
+          </>
+        )}
+
       </div>
     </div>
   );
 }
+
+/* STYLES */
+const styles = {
+  container: {
+    display: "flex",
+    height: "100vh",
+    backgroundColor: "#0d1117",
+    color: "white",
+    fontFamily: "Arial"
+  },
+
+  left: {
+    flex: 1,
+    borderRight: "1px solid #222",
+    display: "flex",
+    flexDirection: "column"
+  },
+
+  right: {
+    flex: 1,
+    padding: "20px",
+    overflowY: "auto"
+  },
+
+  problemBox: {
+    padding: "15px",
+    backgroundColor: "#161b22",
+    borderBottom: "1px solid #333"
+  },
+
+  topBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    padding: "10px",
+    backgroundColor: "#111827"
+  },
+
+  select: {
+    backgroundColor: "#0d1117",
+    color: "white",
+    padding: "5px"
+  },
+
+  button: {
+    backgroundColor: "#00ff88",
+    border: "none",
+    padding: "8px 15px",
+    cursor: "pointer",
+    fontWeight: "bold"
+  },
+
+  statusBox: {
+    padding: "10px",
+    backgroundColor: "#1f2937",
+    marginBottom: "10px"
+  },
+
+  outputBox: {
+    padding: "10px",
+    backgroundColor: "#111827",
+    marginBottom: "10px"
+  },
+
+  countBox: {
+    padding: "10px",
+    backgroundColor: "#0f172a",
+    marginBottom: "15px"
+  },
+
+  testCase: {
+    padding: "10px",
+    borderRadius: "6px",
+    marginBottom: "10px"
+  }
+};

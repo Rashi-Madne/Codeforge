@@ -9,15 +9,35 @@ public class CodeRequest {
     private String input;
     private List<TestCase> testCases;
 
-    public String getCode() { return code; }
-    public void setCode(String code) { this.code = code; }
+    public String getCode() {
+        return code;
+    }
 
-    public String getLanguage() { return language; }
-    public void setLanguage(String language) { this.language = language; }
+    public void setCode(String code) {
+        this.code = code;
+    }
 
-    public String getInput() { return input; }
-    public void setInput(String input) { this.input = input; }
+    public String getLanguage() {
+        return language;
+    }
 
-    public List<TestCase> getTestCases() { return testCases; }
-    public void setTestCases(List<TestCase> testCases) { this.testCases = testCases; }
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public String getInput() {
+        return input;
+    }
+
+    public void setInput(String input) {
+        this.input = input;
+    }
+
+    public List<TestCase> getTestCases() {
+        return testCases;
+    }
+
+    public void setTestCases(List<TestCase> testCases) {
+        this.testCases = testCases;
+    }
 }
