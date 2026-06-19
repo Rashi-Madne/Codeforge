@@ -5,6 +5,8 @@ const problems = [
   {
     id: 1,
     title: "Print 10",
+    difficulty: "Easy",
+    category: "Basics",
     description: "Print the number 10.",
     expected: "10",
     starterPython: "print(10)",
@@ -14,9 +16,12 @@ const problems = [
     }
 }`
   },
+
   {
     id: 2,
     title: "Print Hello World",
+    difficulty: "Easy",
+    category: "Strings",
     description: "Print Hello World exactly.",
     expected: "Hello World",
     starterPython: `print("Hello World")`,
@@ -26,17 +31,20 @@ const problems = [
     }
 }`
   },
+
   {
     id: 3,
     title: "Print Your Name",
+    difficulty: "Medium",
+    category: "Strings",
     description: "Print your name.",
     expected: "Rashi",
     starterPython: `print("Rashi")`,
     starterJava: `public class Main {
-    public static void main(String[] args) {
-        System.out.println("Rashi");
-    }
-}`
+        public static void main(String[] args) {
+            System.out.println("Rashi");
+        }
+    }`
   }
 ];
 
@@ -46,6 +54,12 @@ function App() {
   const [code, setCode] = useState(problems[0].starterPython);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [search, setSearch] = useState("");
+const [solvedProblems, setSolvedProblems] = useState([]);
+
+  const filteredProblems = problems.filter((problem) =>
+  problem.title.toLowerCase().includes(search.toLowerCase())
+);
 
   const changeProblem = (problem) => {
     setSelectedProblem(problem);
@@ -95,7 +109,27 @@ function App() {
       );
 
       const data = await response.json();
-      setResult(data);
+
+setResult(data);
+
+if (
+  data.status === "SUCCESS" &&
+  data.passed === data.total
+) {
+  setSolvedProblems((prev) => {
+
+    if (
+      prev.includes(selectedProblem.id)
+    ) {
+      return prev;
+    }
+
+    return [
+      ...prev,
+      selectedProblem.id
+    ];
+  });
+}
     } catch (error) {
       setResult({
         status: "ERROR",
@@ -110,37 +144,109 @@ function App() {
     <div style={styles.container}>
       {/* Sidebar */}
       <div style={styles.sidebar}>
-        <h2 style={{ marginBottom: "20px" }}>CodeForge</h2>
+        <h2>CodeForge</h2>
 
-        {problems.map((problem) => (
-          <div
-            key={problem.id}
-            onClick={() => changeProblem(problem)}
-            style={{
-              ...styles.problemCard,
-              backgroundColor:
-                selectedProblem.id === problem.id
-                  ? "#2563eb"
-                  : "#1f2937"
-            }}
-          >
-            {problem.title}
-          </div>
-        ))}
-      </div>
+        <p
+  style={{
+    color: "#9ca3af",
+    marginBottom: "15px"
+  }}
+>
+  Solved:
+  {" "}
+  {solvedProblems.length}
+  /
+  {problems.length}
+</p>
+
+<h3>
+  Problems ({filteredProblems.length})
+</h3>
+
+<input
+  type="text"
+  placeholder="Search Problems..."
+  value={search}
+  onChange={(e) =>
+    setSearch(e.target.value)
+  }
+  style={styles.searchBox}
+/>
+
+{filteredProblems.map((problem) => (
+  <div
+    key={problem.id}
+    onClick={() => changeProblem(problem)}
+    style={{
+      ...styles.problemCard,
+      backgroundColor:
+        selectedProblem.id === problem.id
+          ? "#2563eb"
+          : "#1f2937"
+    }}
+  >
+    <div>
+      {problem.difficulty === "Easy" && "🟢"}
+      {problem.difficulty === "Medium" && "🟡"}
+      {problem.difficulty === "Hard" && "🔴"}
+
+      {" "}
+      {problem.title}
+
+      {solvedProblems.includes(problem.id) && (
+        <span
+          style={{
+            color: "#22c55e",
+            marginLeft: "8px"
+          }}
+        >
+          ✓
+        </span>
+      )}
+    </div>
+
+    <small>
+      {problem.category}
+    </small>
+  </div>
+))}
+    
+        </div>
 
       {/* Main */}
       <div style={styles.main}>
         <div style={styles.problemBox}>
-          <h2>{selectedProblem.title}</h2>
+  <h2>{selectedProblem.title}</h2>
 
-          <p>{selectedProblem.description}</p>
+  <p>{selectedProblem.description}</p>
 
-          <p style={{ marginTop: "10px" }}>
-            <strong>Expected Output:</strong>{" "}
-            {selectedProblem.expected}
-          </p>
-        </div>
+  <p>
+    <strong>Difficulty:</strong>
+    {" "}
+    {selectedProblem.difficulty}
+  </p>
+
+<p>
+  <strong>Category:</strong>{" "}
+  {selectedProblem.category}
+</p>
+
+<p>
+  <strong>Acceptance:</strong>{" "}
+  92%
+</p>
+
+<p>
+  <strong>Submissions:</strong>{" "}
+  1450
+</p>
+
+  <p>
+    <b>Expected Output:</b>
+    {" "}
+    {selectedProblem.expected}
+  </p>
+</div>
 
         <div style={styles.toolbar}>
           <select
@@ -251,6 +357,22 @@ function App() {
 }
 
 const styles = {
+
+  searchBox: {
+  width: "100%",
+  padding: "10px",
+  marginBottom: "15px",
+  borderRadius: "8px",
+  border: "none"
+},
+
+problemCard: {
+  padding: "12px",
+  marginBottom: "10px",
+  borderRadius: "8px",
+  cursor: "pointer",
+  transition: "0.2s"
+},
   container: {
     display: "flex",
     height: "100vh",
@@ -263,13 +385,6 @@ const styles = {
     backgroundColor: "#111827",
     padding: "20px",
     overflowY: "auto"
-  },
-
-  problemCard: {
-    padding: "12px",
-    marginBottom: "10px",
-    borderRadius: "8px",
-    cursor: "pointer"
   },
 
   main: {
