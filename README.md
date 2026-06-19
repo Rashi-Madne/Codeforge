@@ -4,23 +4,23 @@ Online coding platform with Java and Python execution
 # CodeForge
 A LeetCode-style coding platform built with Java Spring Boot and React.
 
-# Day 3 Progress
+## Day 3 Progress
 
 ### Features Added
 
-* Added coding problem sidebar navigation
-* Added searchable problem list
-* Added difficulty badges (Easy / Medium / Hard)
-* Added problem categories
-* Added solved problem tracking
-* Added persistent progress using localStorage
-* Added submission history tracking
-* Added persistent submission history
-* Added progress statistics dashboard
-* Enhanced results panel with test case feedback
-* Improved code editor workflow
-* Refactored frontend state management
-* Continued building a LeetCode-style coding platform
+* Coding problem sidebar
+* Searchable problem list
+* Difficulty indicators (Easy / Medium / Hard)
+* Problem categories
+* Monaco code editor integration
+* Run code functionality
+* Solved problem tracking
+* Progress bar
+* Submission history
+* Local storage persistence
+* Improved results panel
+* Improved CodeForge layout
+* Refactored React state management
 
 ### Tech Stack
 
@@ -39,6 +39,9 @@ A LeetCode-style coding platform built with Java Spring Boot and React.
 
 * Python
 * Java
+
+
+
 
 ### Current Platform Features
 
