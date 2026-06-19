@@ -77,12 +77,23 @@ useEffect(() => {
     JSON.stringify(solvedProblems)
   );
 }, [solvedProblems]);
+
 useEffect(() => {
   localStorage.setItem(
     "history",
     JSON.stringify(history)
   );
 }, [history]);
+useEffect(() => {
+  const savedCode = localStorage.getItem("code");
+  if (savedCode) {
+    setCode(savedCode);
+  }
+}, []);
+
+useEffect(() => {
+  localStorage.setItem("code", code);
+}, [code]);
 
   const filteredProblems = problems.filter((problem) =>
   problem.title.toLowerCase().includes(search.toLowerCase())
@@ -142,10 +153,10 @@ setHistory((prev) => [
   {
     problem: selectedProblem.title,
     status:
-  data.status === "SUCCESS" &&
-  data.passed === data.total
-    ? "ACCEPTED"
-    : "FAILED",
+String(data.status).trim().toUpperCase() === "SUCCESS" &&
+data.passed === data.total
+  ? "ACCEPTED"
+  : "FAILED",
     passed: data.passed,
     total: data.total,
     time: new Date().toLocaleTimeString()
@@ -186,6 +197,9 @@ if (
       {/* Sidebar */}
       <div style={styles.sidebar}>
         <h2>CodeForge</h2>
+        <p style={{ color: "#9ca3af", marginTop: "5px" }}>
+  LeetCode Style Practice Platform
+</p>
 
         <div
   style={{
@@ -195,6 +209,26 @@ if (
     marginBottom: "15px"
   }}
 >
+  <button
+  onClick={() => {
+    setSolvedProblems([]);
+    setHistory([]);
+    localStorage.removeItem("solvedProblems");
+    localStorage.removeItem("history");
+  }}
+  style={{
+    width: "100%",
+    marginTop: "10px",
+    padding: "8px",
+    backgroundColor: "#ef4444",
+    border: "none",
+    borderRadius: "6px",
+    color: "white",
+    cursor: "pointer"
+  }}
+>
+  Reset Progress
+</button>
   <h4>Progress</h4>
 
   <p>
@@ -227,8 +261,8 @@ if (
   </div>
 </div>
 
-<h3>
-  Problems ({filteredProblems.length})
+<h3 style={{ marginTop: "10px" }}>
+  Problem List
 </h3>
 
 <input
