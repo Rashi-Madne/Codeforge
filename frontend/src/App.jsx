@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 
 const problems = [
@@ -54,8 +54,35 @@ function App() {
   const [code, setCode] = useState(problems[0].starterPython);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [history, setHistory] = useState(() => {
+  const saved =
+    localStorage.getItem("history");
+
+  return saved
+    ? JSON.parse(saved)
+    : [];
+});
   const [search, setSearch] = useState("");
-const [solvedProblems, setSolvedProblems] = useState([]);
+  const [solvedProblems, setSolvedProblems] = useState(() => {
+    const saved =
+    localStorage.getItem("solvedProblems");
+
+    return saved
+    ? JSON.parse(saved)
+    : [];
+});
+useEffect(() => {
+  localStorage.setItem(
+    "solvedProblems",
+    JSON.stringify(solvedProblems)
+  );
+}, [solvedProblems]);
+useEffect(() => {
+  localStorage.setItem(
+    "history",
+    JSON.stringify(history)
+  );
+}, [history]);
 
   const filteredProblems = problems.filter((problem) =>
   problem.title.toLowerCase().includes(search.toLowerCase())
@@ -111,6 +138,20 @@ const [solvedProblems, setSolvedProblems] = useState([]);
       const data = await response.json();
 
 setResult(data);
+setHistory((prev) => [
+  {
+    problem: selectedProblem.title,
+    status:
+  data.status === "SUCCESS" &&
+  data.passed === data.total
+    ? "ACCEPTED"
+    : "FAILED",
+    passed: data.passed,
+    total: data.total,
+    time: new Date().toLocaleTimeString()
+  },
+  ...prev
+]);
 
 if (
   data.status === "SUCCESS" &&
@@ -146,18 +187,45 @@ if (
       <div style={styles.sidebar}>
         <h2>CodeForge</h2>
 
-        <p
+        <div
   style={{
-    color: "#9ca3af",
+    backgroundColor: "#1f2937",
+    padding: "15px",
+    borderRadius: "10px",
     marginBottom: "15px"
   }}
 >
-  Solved:
-  {" "}
-  {solvedProblems.length}
-  /
-  {problems.length}
-</p>
+  <h4>Progress</h4>
+
+  <p>
+    {solvedProblems.length}
+    /
+    {problems.length}
+    solved
+  </p>
+
+  <div
+    style={{
+      width: "100%",
+      height: "10px",
+      backgroundColor: "#374151",
+      borderRadius: "10px"
+    }}
+  >
+    <div
+      style={{
+        width: `${
+          (solvedProblems.length /
+            problems.length) *
+          100
+        }%`,
+        height: "100%",
+        backgroundColor: "#22c55e",
+        borderRadius: "10px"
+      }}
+    />
+  </div>
+</div>
 
 <h3>
   Problems ({filteredProblems.length})
@@ -351,7 +419,44 @@ if (
               )}
           </>
         )}
+        <hr style={{ margin: "20px 0" }} />
+
+<h3>Submission History</h3>
+
+{history.length === 0 && (
+  <p>No submissions yet.</p>
+)}
+
+{history.map((item, index) => (
+  <div
+    key={index}
+    style={{
+      backgroundColor: "#1f2937",
+      padding: "10px",
+      borderRadius: "8px",
+      marginBottom: "10px"
+    }}
+  >
+    <div>
+      <strong>{item.problem}</strong>
+    </div>
+
+    <div>
+      {item.status === "ACCEPTED"
+  ? "✔ Accepted"
+  : "❌ Failed"}
+    </div>
+
+    <div>
+      {item.passed}/{item.total}
+    </div>
+
+    <small>{item.time}</small>
+  </div>
+))}
+
       </div>
+      
     </div>
   );
 }
@@ -375,10 +480,10 @@ problemCard: {
 },
   container: {
     display: "flex",
-    height: "100vh",
+    minHeight: "100vh",
     backgroundColor: "#0d1117",
     color: "white"
-  },
+},
 
   sidebar: {
     width: "240px",
