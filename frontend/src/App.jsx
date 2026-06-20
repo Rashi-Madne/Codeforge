@@ -54,6 +54,7 @@ function App() {
   const [code, setCode] = useState(problems[0].starterPython);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [search, setSearch] = useState("");
   const [history, setHistory] = useState(() => {
   const saved =
     localStorage.getItem("history");
@@ -95,6 +96,13 @@ useEffect(() => {
     JSON.stringify(history)
   );
 }, [history]);
+
+useEffect(() => {
+  localStorage.setItem(
+    "user",
+    JSON.stringify(user)
+  );
+}, [user]);
 useEffect(() => {
   const savedCode = localStorage.getItem("code");
   if (savedCode) {
@@ -118,12 +126,6 @@ useEffect(() => {
     } else {
       setCode(problem.starterJava);
     }
-    useEffect(() => {
-  localStorage.setItem(
-    "user",
-    JSON.stringify(user)
-  );
-}, [user]);
 
     setResult(null);
   };
@@ -198,10 +200,38 @@ if (
       selectedProblem.id
     ];
   });
-  setUser((prev) => ({
-  ...prev,
-  points: prev.points + 10
-}));
+  setUser((prev) => {
+  const today =
+    new Date().toDateString();
+
+  const lastSolved =
+    localStorage.getItem(
+      "lastSolvedDate"
+    );
+
+  let newStreak =
+    prev.streak;
+
+  if (
+    lastSolved !== today
+  ) {
+    newStreak =
+      prev.streak + 1;
+
+    localStorage.setItem(
+      "lastSolvedDate",
+      today
+    );
+  }
+
+  return {
+    ...prev,
+    points:
+      prev.points + 10,
+    streak:
+      newStreak
+  };
+});
 }
     } catch (error) {
       setResult({
@@ -227,9 +257,31 @@ if (
     marginBottom: "15px"
   }}
 >
-  <h3>{user.name}</h3>
+  <h3>
+  {user.name}
+  {" "}
+  🏆
+</h3>
+<p>
+  Rank:
+  {" "}
+  {user.points >= 100
+    ? "Advanced"
+    : user.points >= 50
+    ? "Intermediate"
+    : "Beginner"}
+</p>
 
-  <p>🔥 Streak: {user.streak}</p>
+  <p>
+  🔥 Streak:
+  {" "}
+  {user.streak}
+  {" "}
+  Day
+  {user.streak !== 1
+    ? "s"
+    : ""}
+</p>
 
   <p>⭐ Points: {user.points}</p>
 </div>
@@ -247,11 +299,20 @@ if (
 >
   <button
   onClick={() => {
-    setSolvedProblems([]);
-    setHistory([]);
-    localStorage.removeItem("solvedProblems");
-    localStorage.removeItem("history");
-  }}
+  setSolvedProblems([]);
+  setHistory([]);
+
+  setUser({
+    name: "Rashi",
+    points: 0,
+    streak: 0
+  });
+
+  localStorage.removeItem("solvedProblems");
+  localStorage.removeItem("history");
+  localStorage.removeItem("user");
+  localStorage.removeItem("lastSolvedDate");
+}}
   style={{
     width: "100%",
     marginTop: "10px",
