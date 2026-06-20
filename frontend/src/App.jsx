@@ -62,7 +62,18 @@ function App() {
     ? JSON.parse(saved)
     : [];
 });
-  const [search, setSearch] = useState("");
+  const [user, setUser] = useState(() => {
+  const saved =
+    localStorage.getItem("user");
+
+  return saved
+    ? JSON.parse(saved)
+    : {
+        name: "Rashi",
+        points: 0,
+        streak: 0
+      };
+});
   const [solvedProblems, setSolvedProblems] = useState(() => {
     const saved =
     localStorage.getItem("solvedProblems");
@@ -107,6 +118,12 @@ useEffect(() => {
     } else {
       setCode(problem.starterJava);
     }
+    useEffect(() => {
+  localStorage.setItem(
+    "user",
+    JSON.stringify(user)
+  );
+}, [user]);
 
     setResult(null);
   };
@@ -181,6 +198,10 @@ if (
       selectedProblem.id
     ];
   });
+  setUser((prev) => ({
+  ...prev,
+  points: prev.points + 10
+}));
 }
     } catch (error) {
       setResult({
@@ -197,6 +218,21 @@ if (
       {/* Sidebar */}
       <div style={styles.sidebar}>
         <h2>CodeForge</h2>
+        <div
+  style={{
+    backgroundColor: "#1f2937",
+    padding: "15px",
+    borderRadius: "10px",
+    marginTop: "10px",
+    marginBottom: "15px"
+  }}
+>
+  <h3>{user.name}</h3>
+
+  <p>🔥 Streak: {user.streak}</p>
+
+  <p>⭐ Points: {user.points}</p>
+</div>
         <p style={{ color: "#9ca3af", marginTop: "5px" }}>
   LeetCode Style Practice Platform
 </p>
