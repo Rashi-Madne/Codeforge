@@ -41,12 +41,27 @@ A LeetCode-style coding platform built with Java Spring Boot and React.
 * Java
 
 
-
-
 ### Current Platform Features
 
 * Browse coding problems
 * Search problems instantly
+
+## Day 4 Progress
+
+### Features Added
+
+* User profile card
+* Dynamic points system
+* Persistent user data using LocalStorage
+* Improved sidebar experience
+* Git workflow with rebase and push handling
+
+### Current User Features
+
+* Name display
+* Points tracking
+* Persistent profile state
+
 * Switch between Python and Java
 * Run code against test cases
 * View execution results
