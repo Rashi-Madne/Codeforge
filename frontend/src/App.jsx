@@ -314,14 +314,17 @@ return {
       <div style={styles.sidebar}>
 
   <h1
-    style={{
-      marginBottom: "20px",
-      color: "#60a5fa",
-      textAlign: "center"
-    }}
-  >
-     CodeForge
-  </h1>
+  style={{
+    fontSize: "32px",
+    fontWeight: "700",
+    marginBottom: "25px",
+    color: "#38bdf8",
+    letterSpacing: "-1px",
+    textAlign: "center"
+  }}
+>
+  CodeForge
+</h1>
 
   <div
     style={{
@@ -504,7 +507,52 @@ return {
     />
   </div>
 </div>
+<div
+style={{
+  display:"flex",
+  justifyContent:"space-between",
+  marginBottom:"20px"
+}}
+>
+  <div>
+    <div
+    style={{
+      fontSize:"26px",
+      fontWeight:"700"
+    }}
+    >
+      {user.points}
+    </div>
 
+    <small>XP</small>
+  </div>
+
+  <div>
+    <div
+    style={{
+      fontSize:"26px",
+      fontWeight:"700"
+    }}
+    >
+      {solvedProblems.length}
+    </div>
+
+    <small>Solved</small>
+  </div>
+
+  <div>
+    <div
+    style={{
+      fontSize:"26px",
+      fontWeight:"700"
+    }}
+    >
+      {user.streak}
+    </div>
+
+    <small>Streak</small>
+  </div>
+</div>
 <h3 style={{ marginTop: "10px" }}>
   Problem List
 </h3>
@@ -532,16 +580,30 @@ return {
 
 {filteredProblems.map((problem) => (
   <div
-    key={problem.id}
-    onClick={() => changeProblem(problem)}
-    style={{
-      ...styles.problemCard,
-      backgroundColor:
-        selectedProblem.id === problem.id
-          ? "#2563eb"
-          : "#1f2937"
-    }}
-  >
+  key={problem.id}
+  onMouseEnter={(e)=>{
+    e.currentTarget.style.transform =
+      "translateY(-3px)";
+  }}
+  onMouseLeave={(e)=>{
+    e.currentTarget.style.transform =
+      "translateY(0px)";
+  }}
+  onClick={() => changeProblem(problem)}
+  style={{
+    ...styles.problemCard,
+
+    backgroundColor:
+      selectedProblem.id === problem.id
+        ? "#1d4ed8"
+        : "#111827",
+
+    border:
+      selectedProblem.id === problem.id
+        ? "1px solid #60a5fa"
+        : "1px solid #1e293b"
+  }}
+>
     <div>
       {problem.difficulty === "Easy" && "🟢"}
       {problem.difficulty === "Medium" && "🟡"}
@@ -589,15 +651,34 @@ return {
       {/* Main */}
       <div style={styles.main}>
         <div style={styles.problemBox}>
-  <h2>{selectedProblem.title}</h2>
+  <h1
+style={{
+  fontSize:"34px",
+  fontWeight:"700",
+  marginBottom:"15px"
+}}
+>
+  {selectedProblem.title}
+</h1>
 
   <p>{selectedProblem.description}</p>
 
-  <p>
-    <strong>Difficulty:</strong>
-    {" "}
-    {selectedProblem.difficulty}
-  </p>
+  <div
+style={{
+  display:"inline-block",
+  padding:"6px 12px",
+  borderRadius:"999px",
+  backgroundColor:
+    selectedProblem.difficulty === "Easy"
+      ? "#14532d"
+      : selectedProblem.difficulty === "Medium"
+      ? "#854d0e"
+      : "#7f1d1d",
+  marginBottom:"15px"
+}}
+>
+  {selectedProblem.difficulty}
+</div>
 
 <p>
   <strong>Category:</strong>{" "}
@@ -640,7 +721,16 @@ return {
           </button>
         </div>
 
-        <Editor
+        <div
+  style={{
+    margin: "20px",
+    borderRadius: "20px",
+    overflow: "hidden",
+    border: "1px solid #1e293b",
+    boxShadow: "0 15px 35px rgba(0,0,0,.35)"
+  }}
+>
+  <Editor
     height="75vh"
     theme="vs-dark"
     language={language}
@@ -648,7 +738,9 @@ return {
     onChange={(value) =>
       setCode(value || "")
     }
-        />
+  />
+</div>
+
       </div>
 
       {/* Results */}
@@ -778,23 +870,31 @@ const styles = {
 
   searchBox: {
   width: "100%",
-  padding: "14px",
+  padding: "15px",
   marginBottom: "15px",
-  borderRadius: "12px",
-  border: "1px solid #374151",
-  backgroundColor: "#1f2937",
+  borderRadius: "14px",
+  border: "1px solid #334155",
+  backgroundColor: "#0f172a",
   color: "white",
-  fontSize: "14px"
+  fontSize: "15px",
+  outline: "none"
 },
 
 problemCard: {
-  padding: "16px",
-  marginBottom: "14px",
-  borderRadius: "16px",
+  padding: "18px",
+  marginBottom: "15px",
+  borderRadius: "18px",
   cursor: "pointer",
-  transition: "all 0.3s ease",
-  border: "1px solid #2d3748",
-  boxShadow: "0 8px 24px rgba(0,0,0,0.25)"
+
+  background:
+    "linear-gradient(180deg,#111827,#0f172a)",
+
+  border: "1px solid #1e293b",
+
+  transition: "all .25s ease",
+
+  boxShadow:
+    "0 8px 25px rgba(0,0,0,.25)"
 },
   container: {
     display: "flex",
@@ -804,13 +904,12 @@ problemCard: {
 },
 
   sidebar: {
-  width: "240px",
-  backgroundColor: "#111827",
-  padding: "20px",
+  width: "350px",
+  backgroundColor: "#0b1220",
+  padding: "25px",
   overflowY: "auto",
-  borderRight: "1px solid #374151"
+  borderRight: "1px solid #1e293b"
 },
-
   main: {
     flex: 1,
     display: "flex",
@@ -818,12 +917,12 @@ problemCard: {
   },
 
   problemBox: {
-  backgroundColor: "#161b22",
-  padding: "30px",
+  backgroundColor: "#111827",
+  padding: "35px",
   margin: "20px",
-  borderRadius: "20px",
-  border: "1px solid #30363d",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.25)"
+  borderRadius: "24px",
+  border: "1px solid #1e293b",
+  boxShadow: "0 15px 40px rgba(0,0,0,0.35)"
 },
   toolbar: {
     display: "flex",
@@ -837,22 +936,37 @@ problemCard: {
   },
 
   runButton: {
-  background: "linear-gradient(90deg,#22c55e,#16a34a)",
+  background:
+    "linear-gradient(135deg,#22c55e,#16a34a)",
+
   color: "white",
+
   border: "none",
-  padding: "12px 22px",
-  borderRadius: "10px",
-  cursor: "pointer",
-  fontWeight: "bold",
-  fontSize: "15px"
+
+  padding: "14px 28px",
+
+  borderRadius: "14px",
+
+  fontWeight: "600",
+
+  fontSize: "15px",
+
+  boxShadow:
+    "0 10px 20px rgba(34,197,94,.25)",
+
+  cursor: "pointer"
 },
 
   results: {
-  width: "300px",
-  backgroundColor: "#111827",
-  padding: "20px",
+  width: "420px",
+
+  backgroundColor: "#0f172a",
+
+  padding: "25px",
+
   overflowY: "auto",
-  borderLeft: "1px solid #374151"
+
+  borderLeft: "1px solid #1e293b"
 },
 
   resultCard: {
