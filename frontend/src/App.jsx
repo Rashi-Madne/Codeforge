@@ -320,7 +320,7 @@ return {
       textAlign: "center"
     }}
   >
-    ⚡ CodeForge
+     CodeForge
   </h1>
 
   <div
@@ -553,12 +553,12 @@ return {
 {solvedProblems.includes(problem.id) && (
   <span
     style={{
-      backgroundColor:"#22c55e",
-      color:"white",
-      padding:"2px 6px",
-      borderRadius:"6px",
-      marginLeft:"8px",
-      fontSize:"12px"
+      backgroundColor: "#22c55e",
+      color: "white",
+      padding: "2px 6px",
+      borderRadius: "6px",
+      marginLeft: "8px",
+      fontSize: "12px"
     }}
   >
     Solved
@@ -778,22 +778,23 @@ const styles = {
 
   searchBox: {
   width: "100%",
-  padding: "12px",
+  padding: "14px",
   marginBottom: "15px",
-  borderRadius: "10px",
+  borderRadius: "12px",
   border: "1px solid #374151",
-  backgroundColor: "#111827",
-  color: "white"
+  backgroundColor: "#1f2937",
+  color: "white",
+  fontSize: "14px"
 },
 
 problemCard: {
-  padding: "15px",
-  marginBottom: "12px",
-  borderRadius: "12px",
+  padding: "16px",
+  marginBottom: "14px",
+  borderRadius: "16px",
   cursor: "pointer",
   transition: "all 0.3s ease",
-  border: "1px solid #374151",
-  boxShadow: "0 2px 6px rgba(0,0,0,0.25)"
+  border: "1px solid #2d3748",
+  boxShadow: "0 8px 24px rgba(0,0,0,0.25)"
 },
   container: {
     display: "flex",
@@ -803,7 +804,7 @@ problemCard: {
 },
 
   sidebar: {
-  width: "280px",
+  width: "240px",
   backgroundColor: "#111827",
   padding: "20px",
   overflowY: "auto",
@@ -818,10 +819,11 @@ problemCard: {
 
   problemBox: {
   backgroundColor: "#161b22",
-  padding: "25px",
-  margin: "15px",
-  borderRadius: "15px",
-  border: "1px solid #30363d"
+  padding: "30px",
+  margin: "20px",
+  borderRadius: "20px",
+  border: "1px solid #30363d",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.25)"
 },
   toolbar: {
     display: "flex",
@@ -846,7 +848,7 @@ problemCard: {
 },
 
   results: {
-  width: "400px",
+  width: "300px",
   backgroundColor: "#111827",
   padding: "20px",
   overflowY: "auto",
