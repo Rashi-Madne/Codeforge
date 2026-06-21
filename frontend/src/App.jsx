@@ -3,19 +3,27 @@ import Editor from "@monaco-editor/react";
 
 const problems = [
   {
-    id: 1,
-    title: "Print 10",
-    difficulty: "Easy",
-    category: "Basics",
-    description: "Print the number 10.",
-    expected: "10",
-    starterPython: "print(10)",
-    starterJava: `public class Main {
-    public static void main(String[] args) {
-        System.out.println(10);
+  id: 1,
+  title: "Print 10",
+  difficulty: "Easy",
+  category: "Basics",
+  description: "Print the number 10.",
+
+  testCases: [
+    {
+      input: "",
+      expected: "10"
     }
-}`
-  },
+  ],
+
+  starterPython: "print(10)",
+
+  starterJava: `public class Main {
+      public static void main(String[] args){
+          System.out.println(10);
+      }
+  }`
+},
 
   {
     id: 2,
@@ -23,7 +31,12 @@ const problems = [
     difficulty: "Easy",
     category: "Strings",
     description: "Print Hello World exactly.",
-    expected: "Hello World",
+    testCases: [
+  {
+    input: "",
+    expected: "Hello World"
+  }
+],
     starterPython: `print("Hello World")`,
     starterJava: `public class Main {
     public static void main(String[] args) {
@@ -38,14 +51,54 @@ const problems = [
     difficulty: "Medium",
     category: "Strings",
     description: "Print your name.",
-    expected: "Rashi",
+    testCases: [
+  {
+    input: "",
+    expected: "Rashi"
+  }
+],
     starterPython: `print("Rashi")`,
     starterJava: `public class Main {
         public static void main(String[] args) {
             System.out.println("Rashi");
         }
     }`
-  }
+  },
+  {
+    id: 4,
+  title: "Print Input",
+  difficulty: "Easy",
+  category: "Input Output",
+
+  description:
+    "Read a number and print it.",
+
+  testCases: [
+    {
+      input: "5",
+      expected: "5"
+    },
+    {
+      input: "100",
+      expected: "100"
+    }
+  ],
+
+  starterPython:
+`n = input()
+print(n)`,
+
+  starterJava:
+`import java.util.*;
+
+public class Main {
+    public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        String n = sc.nextLine();
+        System.out.println(n);
+    }
+}`
+}
 ];
 
 function App() {
@@ -155,12 +208,7 @@ useEffect(() => {
             language,
             code,
             input: "",
-            testCases: [
-              {
-                input: "",
-                expected: selectedProblem.expected
-              }
-            ]
+            testCases: selectedProblem.testCases
           })
         }
       );
@@ -441,9 +489,8 @@ if (
 </p>
 
   <p>
-    <b>Expected Output:</b>
-    {" "}
-    {selectedProblem.expected}
+    <b>Sample Output:</b>
+{selectedProblem.testCases[0].expected}
   </p>
 </div>
 
