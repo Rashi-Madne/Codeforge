@@ -108,6 +108,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [search, setSearch] = useState("");
+  const [difficultyFilter, setDifficultyFilter] =
+  useState("All");
   const [history, setHistory] = useState(() => {
   const saved =
     localStorage.getItem("history");
@@ -167,8 +169,15 @@ useEffect(() => {
   localStorage.setItem("code", code);
 }, [code]);
 
-  const filteredProblems = problems.filter((problem) =>
-  problem.title.toLowerCase().includes(search.toLowerCase())
+  const filteredProblems = problems.filter(
+  (problem) =>
+    problem.title
+      .toLowerCase()
+      .includes(search.toLowerCase()) &&
+    (
+      difficultyFilter === "All" ||
+      problem.difficulty === difficultyFilter
+    )
 );
 
   const changeProblem = (problem) => {
@@ -303,44 +312,125 @@ return {
     <div style={styles.container}>
       {/* Sidebar */}
       <div style={styles.sidebar}>
-        <h2>CodeForge</h2>
-        <div
+
+  <h1
+    style={{
+      marginBottom: "20px",
+      color: "#60a5fa",
+      textAlign: "center"
+    }}
+  >
+    ⚡ CodeForge
+  </h1>
+
+  <div
+    style={{
+      backgroundColor: "#1f2937",
+      padding: "15px",
+      borderRadius: "12px",
+      marginBottom: "15px"
+    }}
+  >
+    <h3>{user.name} 🏆</h3>
+
+    <p>
+      Rank:
+      {" "}
+      {user.points >= 300
+        ? "Expert"
+        : user.points >= 150
+        ? "Advanced"
+        : user.points >= 50
+        ? "Intermediate"
+        : "Beginner"}
+    </p>
+
+    <p>⭐ Points: {user.points}</p>
+    <div
+  style={{
+    width: "100%",
+    height: "8px",
+    backgroundColor: "#374151",
+    borderRadius: "10px",
+    marginTop: "5px"
+  }}
+>
+  <div
+    style={{
+      width: `${Math.min(user.points,100)}%`,
+      height: "100%",
+      backgroundColor: "#facc15",
+      borderRadius: "10px"
+    }}
+  />
+</div>
+
+    <p>
+      🔥 Streak:
+      {" "}
+      {user.streak}
+      {" "}
+      Day
+      {user.streak !== 1 ? "s" : ""}
+    </p>
+  </div>
+
+  <div
+    style={{
+      backgroundColor: "#1f2937",
+      padding: "15px",
+      borderRadius: "12px",
+      marginBottom: "15px"
+    }}
+  >
+    <h4>Statistics</h4>
+
+    <p>
+      Problems Solved:
+      {" "}
+      {solvedProblems.length}
+    </p>
+
+    <p>
+      Total Submissions:
+      {" "}
+      {history.length}
+    </p>
+
+    <p>
+      Success Rate:
+      {" "}
+      {
+        history.length === 0
+          ? 0
+          : Math.round(
+              history.filter(
+                h => h.status === "ACCEPTED"
+              ).length
+              /
+              history.length
+              * 100
+            )
+      }
+      %
+    </p>
+  </div>
+
+<div
   style={{
     backgroundColor: "#1f2937",
     padding: "15px",
-    borderRadius: "10px",
-    marginTop: "10px",
+    borderRadius: "12px",
     marginBottom: "15px"
   }}
 >
-  <h3>
-  {user.name}
-  {" "}
-  🏆
-</h3>
-<p>
-  Rank:
-  {user.points >= 300
-  ? "Expert"
-  : user.points >= 150
-  ? "Advanced"
-  : user.points >= 50
-  ? "Intermediate"
-  : "Beginner"}
-</p>
+  <h4>🔥 Daily Challenge</h4>
 
-  <p>
-  🔥 Streak:
-  {" "}
-  {user.streak}
-  {" "}
-  Day
-  {user.streak !== 1
-    ? "s"
-    : ""}
-</p>
+  <p>{problems[0].title}</p>
 
-  <p>⭐ Points: {user.points}</p>
+  <small>
+    Complete for bonus XP
+  </small>
 </div>
         <p style={{ color: "#9ca3af", marginTop: "5px" }}>
   LeetCode Style Practice Platform
@@ -418,7 +508,18 @@ return {
 <h3 style={{ marginTop: "10px" }}>
   Problem List
 </h3>
-
+<select
+  value={difficultyFilter}
+  onChange={(e) =>
+    setDifficultyFilter(e.target.value)
+  }
+  style={styles.searchBox}
+>
+  <option>All</option>
+  <option>Easy</option>
+  <option>Medium</option>
+  <option>Hard</option>
+</select>
 <input
   type="text"
   placeholder="Search Problems..."
@@ -449,16 +550,20 @@ return {
       {" "}
       {problem.title}
 
-      {solvedProblems.includes(problem.id) && (
-        <span
-          style={{
-            color: "#22c55e",
-            marginLeft: "8px"
-          }}
-        >
-          ✓
-        </span>
-      )}
+{solvedProblems.includes(problem.id) && (
+  <span
+    style={{
+      backgroundColor:"#22c55e",
+      color:"white",
+      padding:"2px 6px",
+      borderRadius:"6px",
+      marginLeft:"8px",
+      fontSize:"12px"
+    }}
+  >
+    Solved
+  </span>
+)}
     </div>
 
     <small>
@@ -477,8 +582,9 @@ return {
 </div>
   </div>
 ))}
+
     
-        </div>
+      </div>
 
       {/* Main */}
       <div style={styles.main}>
@@ -535,13 +641,13 @@ return {
         </div>
 
         <Editor
-          height="70vh"
-          theme="vs-dark"
-          language={language}
-          value={code}
-          onChange={(value) =>
-            setCode(value || "")
-          }
+    height="75vh"
+    theme="vs-dark"
+    language={language}
+    value={code}
+    onChange={(value) =>
+      setCode(value || "")
+    }
         />
       </div>
 
@@ -556,10 +662,19 @@ return {
         {result && (
           <>
             <div style={styles.resultCard}>
-              <p>
-                <strong>Status:</strong>{" "}
-                {result.status}
-              </p>
+              <div
+  style={{
+    color:
+      result.status === "SUCCESS"
+        ? "#22c55e"
+        : "#ef4444",
+    fontWeight: "bold",
+    fontSize: "18px",
+    marginBottom: "10px"
+  }}
+>
+  {result.status}
+</div>
 
               <p>
                 <strong>Passed:</strong>{" "}
@@ -641,8 +756,8 @@ return {
 
     <div>
       {item.status === "ACCEPTED"
-  ? "✔ Accepted"
-  : "❌ Failed"}
+        ? "✔ Accepted"
+        : "❌ Failed"}
     </div>
 
     <div>
@@ -663,18 +778,22 @@ const styles = {
 
   searchBox: {
   width: "100%",
-  padding: "10px",
+  padding: "12px",
   marginBottom: "15px",
-  borderRadius: "8px",
-  border: "none"
+  borderRadius: "10px",
+  border: "1px solid #374151",
+  backgroundColor: "#111827",
+  color: "white"
 },
 
 problemCard: {
-  padding: "12px",
-  marginBottom: "10px",
-  borderRadius: "8px",
+  padding: "15px",
+  marginBottom: "12px",
+  borderRadius: "12px",
   cursor: "pointer",
-  transition: "0.2s"
+  transition: "all 0.3s ease",
+  border: "1px solid #374151",
+  boxShadow: "0 2px 6px rgba(0,0,0,0.25)"
 },
   container: {
     display: "flex",
@@ -684,11 +803,12 @@ problemCard: {
 },
 
   sidebar: {
-    width: "240px",
-    backgroundColor: "#111827",
-    padding: "20px",
-    overflowY: "auto"
-  },
+  width: "280px",
+  backgroundColor: "#111827",
+  padding: "20px",
+  overflowY: "auto",
+  borderRight: "1px solid #374151"
+},
 
   main: {
     flex: 1,
@@ -697,10 +817,12 @@ problemCard: {
   },
 
   problemBox: {
-    backgroundColor: "#161b22",
-    padding: "15px"
-  },
-
+  backgroundColor: "#161b22",
+  padding: "25px",
+  margin: "15px",
+  borderRadius: "15px",
+  border: "1px solid #30363d"
+},
   toolbar: {
     display: "flex",
     justifyContent: "space-between",
@@ -713,28 +835,31 @@ problemCard: {
   },
 
   runButton: {
-    backgroundColor: "#22c55e",
-    color: "white",
-    border: "none",
-    padding: "8px 16px",
-    borderRadius: "6px",
-    cursor: "pointer"
-  },
+  background: "linear-gradient(90deg,#22c55e,#16a34a)",
+  color: "white",
+  border: "none",
+  padding: "12px 22px",
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontWeight: "bold",
+  fontSize: "15px"
+},
 
   results: {
-    width: "350px",
-    backgroundColor: "#111827",
-    padding: "20px",
-    overflowY: "auto"
-  },
+  width: "400px",
+  backgroundColor: "#111827",
+  padding: "20px",
+  overflowY: "auto",
+  borderLeft: "1px solid #374151"
+},
 
   resultCard: {
-    backgroundColor: "#1f2937",
-    padding: "15px",
-    borderRadius: "8px",
-    marginBottom: "15px"
-  },
-
+  backgroundColor: "#1f2937",
+  padding: "20px",
+  borderRadius: "12px",
+  marginBottom: "15px",
+  border: "1px solid #374151"
+},
   testCard: {
     padding: "10px",
     borderRadius: "8px",
