@@ -272,13 +272,21 @@ if (
     );
   }
 
-  return {
-    ...prev,
-    points:
-      prev.points + 10,
-    streak:
-      newStreak
-  };
+  let earnedPoints = 10;
+
+if (selectedProblem.difficulty === "Medium") {
+  earnedPoints = 20;
+}
+
+if (selectedProblem.difficulty === "Hard") {
+  earnedPoints = 30;
+}
+
+return {
+  ...prev,
+  points: prev.points + earnedPoints,
+  streak: newStreak
+};
 });
 }
     } catch (error) {
@@ -312,12 +320,13 @@ if (
 </h3>
 <p>
   Rank:
-  {" "}
-  {user.points >= 100
-    ? "Advanced"
-    : user.points >= 50
-    ? "Intermediate"
-    : "Beginner"}
+  {user.points >= 300
+  ? "Expert"
+  : user.points >= 150
+  ? "Advanced"
+  : user.points >= 50
+  ? "Intermediate"
+  : "Beginner"}
 </p>
 
   <p>
@@ -453,8 +462,19 @@ if (
     </div>
 
     <small>
-      {problem.category}
-    </small>
+  {problem.category}
+</small>
+
+<div
+  style={{
+    marginTop: "5px",
+    color: "#facc15"
+  }}
+>
+  {problem.difficulty === "Easy" && "+10 XP"}
+  {problem.difficulty === "Medium" && "+20 XP"}
+  {problem.difficulty === "Hard" && "+30 XP"}
+</div>
   </div>
 ))}
     
